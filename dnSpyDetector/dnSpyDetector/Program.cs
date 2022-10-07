@@ -13,6 +13,7 @@ namespace dnSpyDetector
 
         static void Main(string[] args)
         {
+            Debugger.IsLogging();
             int hookCount = 0;
             Console.WriteLine("Checking the presence of dnSpy hooks ...");
 
@@ -48,7 +49,19 @@ namespace dnSpyDetector
 
             if (data[0] == 0x33)
             {
-                Console.WriteLine($"System.Diagnostics.Debugger hook detected ...");
+                Console.WriteLine($"System.Diagnostics.Debugger.IsAttached hook detected ...");
+                hookCount++;
+            }
+
+          
+            var isLoggingMethod = debuggerType.GetMethod("IsLogging");
+
+            targetAddre = isLoggingMethod.MethodHandle.GetFunctionPointer();
+            System.Runtime.InteropServices.Marshal.Copy(targetAddre, data, 0, 1);
+
+            if (data[0] == 0x33)
+            {
+                Console.WriteLine($"System.Diagnostics.Debugger.IsLogging hook detected ...");
                 hookCount++;
             }
 
